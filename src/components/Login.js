@@ -1,12 +1,14 @@
+import React from 'react';
 import { useRef, useState, useEffect } from 'react';
 import useAuth from '../hooks/useAuth';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
-import axios from '../api/axios';
-const LOGIN_URL = '/auth';
+import axios from "../api/axios";
+
+const LOGIN_URL = 'http://localhost:5119/api/account/login';
 
 const Login = () => {
-    const { setAuth, persist, setPersist } = useAuth();
+    const { setAuth, auth, persist, setPersist } = useAuth();
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -27,22 +29,25 @@ const Login = () => {
         setErrMsg('');
     }, [user, pwd])
 
-    const handleSubmit = async (e) => {
+    const handelSubmit = async (e) => {
         e.preventDefault();
-
+        //console.log(user);
         try {
             const response = await axios.post(LOGIN_URL,
-                JSON.stringify({ user, pwd }),
-                {
-                    headers: { 'Content-Type': 'application/json' },
-                    withCredentials: true
-                }
+                JSON.stringify({ Email: user, Password: pwd })
             );
-            console.log(JSON.stringify(response?.data));
-            //console.log(JSON.stringify(response));
-            const accessToken = response?.data?.accessToken;
+            
+            //console.log(JSON.stringify(response?.data));
+            const accessToken = response?.data?.token;
+            //const refreshToken = response?.data?.refreshToken;
             const roles = response?.data?.roles;
-            setAuth({ user, pwd, roles, accessToken });
+            setAuth({user, roles, accessToken });
+            setPersist(true);
+            // console.log(response.status);
+            // console.log(auth.accessToken);
+            // console.log(accessToken);
+            // console.log(user);
+            // console.log(roles);
             setUser('');
             setPwd('');
             navigate(from, { replace: true });
@@ -69,12 +74,14 @@ const Login = () => {
     }, [persist])
 
     return (
-
+        
         <section>
             <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
-            <h1>Sign In</h1>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="username">Username:</label>
+            <h1>Sing In</h1>
+            <form onSubmit={handelSubmit}>
+                <label htmlFor="username">
+                    Email:
+                </label>
                 <input
                     type="text"
                     id="username"
@@ -83,16 +90,19 @@ const Login = () => {
                     onChange={(e) => setUser(e.target.value)}
                     value={user}
                     required
-                />
+                    />
 
-                <label htmlFor="password">Password:</label>
+                <label htmlFor="password">
+                    Password:
+                </label>
                 <input
                     type="password"
                     id="password"
                     onChange={(e) => setPwd(e.target.value)}
                     value={pwd}
                     required
-                />
+                    />
+
                 <button>Sign In</button>
                 <div className="persistCheck">
                     <input
@@ -108,10 +118,10 @@ const Login = () => {
                 Need an Account?<br />
                 <span className="line">
                     <Link to="/register">Sign Up</Link>
+                    <Link to="/test">Testa</Link>
                 </span>
             </p>
         </section>
-
     )
 }
 

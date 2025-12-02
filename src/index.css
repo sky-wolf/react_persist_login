@@ -51,6 +51,7 @@ a, a:visited {
 
 input[type="text"],
 input[type="password"],
+input[type="date"],
 button,
 textarea {
   font-family: 'Nunito', sans-serif;
@@ -60,16 +61,13 @@ textarea {
 }
 
 label,
-button {
-  margin-top: 1rem;
+button,
+input {
+  margin-top: 0.5rem;
 }
 
 button {
   padding: 0.5rem;
-}
-
-li {
-    list-style-type: none;
 }
 
 .instructions {
@@ -115,30 +113,4 @@ li {
 
 .line {
     display: inline-block;
-}
-
-.flexGrow {
-    flex-grow: 1;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-end;
-}
-
-
-.persistCheck {
-    font-size: 0.75rem;
-    margin-top: 10px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-end;
-}
-
-.persistCheck label {
-    margin: 0;
-}
-
-[type="checkbox"] {
-    height: 20px;
-    width: 20px;
-    margin: 0 5px 2px 2px;
 }

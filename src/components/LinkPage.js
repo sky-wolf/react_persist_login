@@ -6,6 +6,7 @@ const LinkPage = () => {
             <h1>Links</h1>
             <br />
             <h2>Public</h2>
+            <Link to="/test">Testa</Link>
             <Link to="/login">Login</Link>
             <Link to="/register">Register</Link>
             <br />

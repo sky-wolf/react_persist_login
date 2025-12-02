@@ -1,12 +1,16 @@
 import { useNavigate, Link } from "react-router-dom";
-import useLogout from "../hooks/useLogout";
+import { useContext } from "react";
+import useAuth from "../hooks/useAuth";
+import RestricterdLink from "./RestricterdLink";
 
 const Home = () => {
+    const { auth, setAuth } = useAuth();
     const navigate = useNavigate();
-    const logout = useLogout();
 
-    const signOut = async () => {
-        await logout();
+    const logout = async () => {
+        // if used in more components, this should be in context 
+        // axios to /logout endpoint 
+        setAuth({});
         navigate('/linkpage');
     }
 
@@ -14,17 +18,25 @@ const Home = () => {
         <section>
             <h1>Home</h1>
             <br />
-            <p>You are logged in!</p>
+            auth?.user
+            ? <p>You are loogd in!</p>
+            : <p>You are not logged in!</p>
             <br />
-            <Link to="/editor">Go to the Editor page</Link>
+            <RestricterdLink allowedRoles={['organisator']} till="/events" descriptio="Go to the Edvents page" />
             <br />
-            <Link to="/admin">Go to the Admin page</Link>
+            <RestricterdLink allowedRoles={['administrator']} till="/admin" descriptio="Go to the Admin page" />
+            <Link to=""></Link>
             <br />
-            <Link to="/lounge">Go to the Lounge</Link>
+            <RestricterdLink allowedRoles={['administrator']} till="/lounge" descriptio="Go to the Editor page" />
+            <Link to="">Go to the Lounge</Link>
             <br />
-            <Link to="/linkpage">Go to the link page</Link>
+            <RestricterdLink allowedRoles={['administrator']} till="/linkpage" descriptio="Go to the link page" />
+
+            <br />
+            <RestricterdLink allowedRoles={['administrator']} till="/linkpage" descriptio="Go to the Editor page" />
+            <Link to="/users" >Go to the Users List</Link>
             <div className="flexGrow">
-                <button onClick={signOut}>Sign Out</button>
+                <button onClick={logout}>Sign Out</button>
             </div>
         </section>
     )

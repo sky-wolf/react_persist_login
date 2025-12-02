@@ -1,16 +1,20 @@
 import { useRef, useState, useEffect } from "react";
 import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from '../api/axios';
-import { Link } from "react-router-dom";
+import axios from "../api/axios";
 
-const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
+const USER_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
-const REGISTER_URL = '/register';
+const FULLNAME_REGEX = /^[\p{Letter}\s\-.']+$/u;
+const REGISTER_URL = 'http://localhost:5119/api/account/register';
 
 const Register = () => {
     const userRef = useRef();
     const errRef = useRef();
+
+    const [fullname, setFullName] = useState('');
+    const [validFullName, setValidFullName] = useState(false);
+    const [fullNameFocus, setFullNameFocus] = useState(false);
 
     const [user, setUser] = useState('');
     const [validName, setValidName] = useState(false);
@@ -32,6 +36,10 @@ const Register = () => {
     }, [])
 
     useEffect(() => {
+        setValidFullName(FULLNAME_REGEX.test(fullname));
+    }, [fullname])
+
+    useEffect(() => {
         setValidName(USER_REGEX.test(user));
     }, [user])
 
@@ -42,44 +50,47 @@ const Register = () => {
 
     useEffect(() => {
         setErrMsg('');
-    }, [user, pwd, matchPwd])
+    }, [user, pwd, matchPwd, fullname])
 
-    const handleSubmit = async (e) => {
+    const handelSubmit = async (e) => {
         e.preventDefault();
         // if button enabled with JS hack
         const v1 = USER_REGEX.test(user);
         const v2 = PWD_REGEX.test(pwd);
-        if (!v1 || !v2) {
+        const v3 = FULLNAME_REGEX.test(fullname);
+        if (!v1 || !v2 || !v3) {
             setErrMsg("Invalid Entry");
             return;
         }
         try {
             const response = await axios.post(REGISTER_URL,
-                JSON.stringify({ user, pwd }),
+                JSON.stringify({ Organisator: isChecked, Name: fullname, Email: user, Password: pwd, confirmPassword: matchPwd }),
                 {
-                    headers: { 'Content-Type': 'application/json' },
-                    withCredentials: true
+                    headers: { 'content-Type': 'application/json' },
+
+                    'Access-Control-Allow-Credentials': true
                 }
             );
-            // TODO: remove console.logs before deployment
-            console.log(JSON.stringify(response?.data));
-            //console.log(JSON.stringify(response))
+            console.log(response?.data);
             setSuccess(true);
-            //clear state and controlled inputs
-            setUser('');
-            setPwd('');
-            setMatchPwd('');
+
         } catch (err) {
-            if (!err?.response) {
-                setErrMsg('No Server Response');
+            if (!err.response) {
+                setErrMsg('No server Response');
             } else if (err.response?.status === 409) {
-                setErrMsg('Username Taken');
-            } else {
+                setErrMsg("epost adress andvänds redan");
+            }
+            else {
                 setErrMsg('Registration Failed')
             }
             errRef.current.focus();
         }
     }
+
+    const [isChecked, setIsChecked] = useState(false);
+    const handleCheckboxChange = () => {
+        setIsChecked(!isChecked);
+    };
 
     return (
         <>
@@ -94,22 +105,48 @@ const Register = () => {
                 <section>
                     <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
                     <h1>Register</h1>
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handelSubmit}>
+
+                        <label htmlFor="fullname">
+                            Fullständigt namn:
+                            <FontAwesomeIcon icon={faCheck} className={validFullName ? "valid" : "hide"} />
+                            <FontAwesomeIcon icon={faTimes} className={validFullName || !fullname ? "hide" : "invalid"} />
+                        </label>
+                        <input
+                            type="text"
+                            id="fullname"
+                            ref={userRef}
+                            autoComplete="off"
+                            onChange={(e) => setFullName(e.target.value)}
+                            value={fullname}
+                            required
+                            aria-invalid={validFullName ? "false" : "true"}
+                            aria-description="fullnote"
+                            onFocus={() => setFullNameFocus(true)}
+                            onBlur={() => setFullNameFocus(false)}
+                        />
+                        <p id="fullnote" className={fullNameFocus && fullname && !validFullName ? "instructions" : "offscreen"}>
+                            <FontAwesomeIcon icon={faInfoCircle} />
+                            4 atlist characters.<br />
+                            Must contain only letters.<br />
+                            Numbers, underscores, hyphens not allowed.
+                        </p>
+
                         <label htmlFor="username">
-                            Username:
+                            Email:
                             <FontAwesomeIcon icon={faCheck} className={validName ? "valid" : "hide"} />
                             <FontAwesomeIcon icon={faTimes} className={validName || !user ? "hide" : "invalid"} />
                         </label>
                         <input
                             type="text"
                             id="username"
-                            ref={userRef}
+                            // ref={userRef}
                             autoComplete="off"
                             onChange={(e) => setUser(e.target.value)}
                             value={user}
                             required
                             aria-invalid={validName ? "false" : "true"}
-                            aria-describedby="uidnote"
+                            aria-description="uidnote"
                             onFocus={() => setUserFocus(true)}
                             onBlur={() => setUserFocus(false)}
                         />
@@ -119,7 +156,6 @@ const Register = () => {
                             Must begin with a letter.<br />
                             Letters, numbers, underscores, hyphens allowed.
                         </p>
-
 
                         <label htmlFor="password">
                             Password:
@@ -144,7 +180,6 @@ const Register = () => {
                             Allowed special characters: <span aria-label="exclamation mark">!</span> <span aria-label="at symbol">@</span> <span aria-label="hashtag">#</span> <span aria-label="dollar sign">$</span> <span aria-label="percent">%</span>
                         </p>
 
-
                         <label htmlFor="confirm_pwd">
                             Confirm Password:
                             <FontAwesomeIcon icon={faCheck} className={validMatch && matchPwd ? "valid" : "hide"} />
@@ -165,13 +200,21 @@ const Register = () => {
                             <FontAwesomeIcon icon={faInfoCircle} />
                             Must match the first password input field.
                         </p>
-
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={handleCheckboxChange}
+                            />
+                            Are you a Organisator
+                        </label>
                         <button disabled={!validName || !validPwd || !validMatch ? true : false}>Sign Up</button>
                     </form>
                     <p>
                         Already registered?<br />
                         <span className="line">
-                            <Link to="/">Sign In</Link>
+                            {/*put router link here*/}
+                            <a href="#">Sign In</a>
                         </span>
                     </p>
                 </section>
