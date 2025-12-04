@@ -39,9 +39,9 @@ const Login = () => {
             
             //console.log(JSON.stringify(response?.data));
             const accessToken = response?.data?.token;
-            //const refreshToken = response?.data?.refreshToken;
-            const roles = response?.data?.roles;
-            setAuth({user, roles, accessToken });
+            const refreshToken = response?.data?.refreshToken;
+            const role = response?.data?.roles;
+            setAuth({user, role, accessToken, refreshToken });
             setPersist(true);
             // console.log(response.status);
             // console.log(auth.accessToken);

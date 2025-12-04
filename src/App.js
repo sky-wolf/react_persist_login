@@ -27,25 +27,25 @@ function App() {
         <Route path="linkpage" element={<LinkPage />} />
         <Route path="unauthorized" element={<Unauthorized />} />
 
-        {/* we want to protect these routes */}
+        {/* we want to protect these routes */} */}
         <Route element={<PersistLogin/>}>
           <Route element={<RequireAuth allowedRoles={['organisator']} />}>
             
-            <Route path="/" element={<Home />} />
             {/* <Route path="editor" element={<Editor />} /> */}
             {/* <Route path='events' element={<Events />} /> */}
           </Route>
 
           <Route element={<RequireAuth allowedRoles={['administrator']} />}>
-            <Route path="admin" element={<Admin />} />
           </Route>
 
           <Route element={<RequireAuth allowedRoles={['user']} />}>
+            <Route path="/" element={<Home />} />
+            <Route path="admin" element={<Admin />} />
             <Route path="users" element={<Users />} />
+            <Route path="lounge" element={<Lounge />} />
           </Route>
 
           <Route element={<RequireAuth allowedRoles={['organisator', 'administrator']} />}>
-            <Route path="lounge" element={<Lounge />} />
             
             {/* <Route path='addevent' element={<AddEvent/>} /> */}
           </Route>  

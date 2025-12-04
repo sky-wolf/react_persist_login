@@ -4,11 +4,11 @@ import useAuth from "../hooks/useAuth";
 const RequireAuth = ({ allowedRoles }) => {
     const { auth } = useAuth();
     const location = useLocation();
-    console.error(auth?.user)
+    
     return (
-        auth?.roles?.find(roles => allowedRoles?.includes(roles))
+        auth?.role?.find(role => allowedRoles?.includes(role))
             ? <Outlet />
-            : auth?.user
+            : auth?.accessToken //changed from user to accessToken to persist login after refresh
                 ? <Navigate to="/unauthorized" state={{ from: location }} replace />
                 : <Navigate to="/login" state={{ from: location }} replace />
     );
